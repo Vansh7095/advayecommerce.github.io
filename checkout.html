@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Advay's Factory Store</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <img src="factory-logo.png" alt="Factory Logo" class="logo">
+        <nav class="nav-menu">
+            <a href="index.html">Home</a>
+            <a href="products.html">Products</a>
+            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+            <a href="checkout.html">Checkout</a>
+            <a href="contact.html">Contact</a>
+            <a href="login.html" id="login-link">Login</a>
+        </nav>
+        <button class="hamburger" onclick="toggleMenu()">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+    </header>
+
+    <main class="checkout-main">
+        <section id="checkout">
+            <h2>Checkout</h2>
+            <ul id="checkout-items"></ul>
+            <p>Subtotal: $<span id="checkout-subtotal">0</span></p>
+            <div>
+                <label for="coupon">Coupon Code:</label>
+                <input type="text" id="coupon" placeholder="Enter coupon code">
+                <button onclick="applyCoupon()">Apply Coupon</button>
+            </div>
+            <p>Discount: $<span id="discount">0</span></p>
+            <p>Total: $<span id="checkout-total">0</span></p>
+            <form id="checkout-form">
+                <label for="name">Name:</label>
+                <input type="text" id="name" required>
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+                <label for="address">Address:</label>
+                <textarea id="address" required></textarea>
+                <button type="submit">Complete Purchase</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Advay's Factory. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

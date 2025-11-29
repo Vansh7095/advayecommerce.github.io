@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Advay's Factory Store</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+
+        // Firebase configuration (replace with your own)
+        const firebaseConfig = {
+            apiKey: "your-api-key",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "your-sender-id",
+            appId: "your-app-id"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        window.auth = auth;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signInWithPopup = signInWithPopup;
+        window.GoogleAuthProvider = GoogleAuthProvider;
+        window.signOut = signOut;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.provider = provider;
+    </script>
+</head>
+<body>
+    <header>
+        <img src="factory-logo.png" alt="Factory Logo" class="logo">
+        <nav class="nav-menu">
+            <a href="index.html">Home</a>
+            <a href="products.html">Products</a>
+            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+            <a href="checkout.html">Checkout</a>
+            <a href="contact.html">Contact</a>
+            <a href="#" id="login-link">Login</a>
+        </nav>
+        <button class="hamburger" onclick="toggleMenu()">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+    </header>
+
+    <main class="login-main">
+        <div class="auth-container">
+            <section id="login-section" class="auth-section">
+                <div class="auth-card">
+                    <h2>Welcome Back</h2>
+                    <p class="auth-subtitle">Sign in to your account</p>
+                    <form id="login-form" class="auth-form">
+                        <div class="input-group">
+                            <label for="email">Email</label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-envelope input-icon"></i>
+                                <input type="email" id="email" placeholder="Enter your email" required>
+                            </div>
+                            <span id="email-error" class="error-message"></span>
+                        </div>
+                        <div class="input-group">
+                            <label for="password">Password</label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-lock input-icon"></i>
+                                <input type="password" id="password" placeholder="Enter your password" required>
+                                <button type="button" id="toggle-password" class="password-toggle">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <span id="password-error" class="error-message"></span>
+                        </div>
+                        <div class="form-options">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="remember-me">
+                                <span class="checkmark"></span>
+                                Remember me
+                            </label>
+                            <a href="#" id="forgot-password" class="forgot-link">Forgot password?</a>
+                        </div>
+                        <span id="login-error" class="error-message general-error"></span>
+                        <button type="submit" id="login-btn" class="auth-btn">
+                            <span class="spinner" style="display: none;"><i class="fas fa-spinner fa-spin"></i></span>
+                            <span class="btn-text">Sign In</span>
+                        </button>
+                    </form>
+                    <div class="divider">
+                        <span>or</span>
+                    </div>
+                    <button id="google-login" class="google-btn">
+                        <i class="fab fa-google"></i>
+                        Continue with Google
+                    </button>
+                    <p class="auth-switch">Don't have an account? <a href="#" id="signup-link">Sign Up</a></p>
+                </div>
+            </section>
+
+            <section id="signup-section" class="auth-section" style="display: none;">
+                <div class="auth-card">
+                    <h2>Create Account</h2>
+                    <p class="auth-subtitle">Join Advay's Factory Store</p>
+                    <form id="signup-form" class="auth-form">
+                        <div class="input-group">
+                            <label for="signup-email">Email</label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-envelope input-icon"></i>
+                                <input type="email" id="signup-email" placeholder="Enter your email" required>
+                            </div>
+                            <span id="signup-email-error" class="error-message"></span>
+                        </div>
+                        <div class="input-group">
+                            <label for="signup-password">Password</label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-lock input-icon"></i>
+                                <input type="password" id="signup-password" placeholder="Create a password" required>
+                                <button type="button" id="toggle-signup-password" class="password-toggle">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <span id="signup-password-error" class="error-message"></span>
+                        </div>
+                        <span id="signup-error" class="error-message general-error"></span>
+                        <button type="submit" id="signup-btn" class="auth-btn">
+                            <span class="spinner" style="display: none;"><i class="fas fa-spinner fa-spin"></i></span>
+                            <span class="btn-text">Sign Up</span>
+                        </button>
+                    </form>
+                    <div class="divider">
+                        <span>or</span>
+                    </div>
+                    <button id="google-signup" class="google-btn">
+                        <i class="fab fa-google"></i>
+                        Sign up with Google
+                    </button>
+                    <p class="auth-switch">Already have an account? <a href="#" id="login-link-alt">Sign In</a></p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Advay's Factory. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Utility functions
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = message ? 'block' : 'none';
+        }
+
+        function setLoading(buttonId, isLoading) {
+            const btn = document.getElementById(buttonId);
+            const spinner = btn.querySelector('.spinner');
+            const text = btn.querySelector('.btn-text');
+            if (isLoading) {
+                spinner.style.display = 'inline-block';
+                text.style.display = 'none';
+                btn.disabled = true;
+            } else {
+                spinner.style.display = 'none';
+                text.style.display = 'inline';
+                btn.disabled = false;
+            }
+        }
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function validatePassword(password) {
+            return password.length >= 6;
+        }
+
+        // Password toggle functionality
+        document.getElementById('toggle-password').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        document.getElementById('toggle-signup-password').addEventListener('click', function() {
+            const passwordInput = document.getElementById('signup-password');
+            const icon = this.querySelector('i');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        // Login form
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('remember-me').checked;
+
+            // Clear previous errors
+            showError('email-error', '');
+            showError('password-error', '');
+            showError('login-error', '');
+
+            // Validation
+            let isValid = true;
+            if (!email) {
+                showError('email-error', 'Email is required');
+                isValid = false;
+            } else if (!validateEmail(email)) {
+                showError('email-error', 'Please enter a valid email');
+                isValid = false;
+            }
+            if (!password) {
+                showError('password-error', 'Password is required');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            setLoading('login-btn', true);
+
+            try {
+                if (rememberMe) {
+                    await auth.setPersistence('local');
+                } else {
+                    await auth.setPersistence('session');
+                }
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = 'index.html';
+            } catch (error) {
+                let errorMessage = 'Login failed';
+                if (error.code === 'auth/user-not-found') {
+                    errorMessage = 'No account found with this email';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorMessage = 'Incorrect password';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Invalid email format';
+                }
+                showError('login-error', errorMessage);
+            } finally {
+                setLoading('login-btn', false);
+            }
+        });
+
+        // Signup form
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value;
+
+            // Clear previous errors
+            showError('signup-email-error', '');
+            showError('signup-password-error', '');
+            showError('signup-error', '');
+
+            // Validation
+            let isValid = true;
+            if (!email) {
+                showError('signup-email-error', 'Email is required');
+                isValid = false;
+            } else if (!validateEmail(email)) {
+                showError('signup-email-error', 'Please enter a valid email');
+                isValid = false;
+            }
+            if (!password) {
+                showError('signup-password-error', 'Password is required');
+                isValid = false;
+            } else if (!validatePassword(password)) {
+                showError('signup-password-error', 'Password must be at least 6 characters');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            setLoading('signup-btn', true);
+
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                window.location.href = 'index.html';
+            } catch (error) {
+                let errorMessage = 'Signup failed';
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = 'An account with this email already exists';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = 'Password is too weak';
+                }
+                showError('signup-error', errorMessage);
+            } finally {
+                setLoading('signup-btn', false);
+            }
+        });
+
+        // Google login
+        document.getElementById('google-login').addEventListener('click', async () => {
+            try {
+                await signInWithPopup(auth, provider);
+                window.location.href = 'index.html';
+            } catch (error) {
+                showError('login-error', 'Google login failed: ' + error.message);
+            }
+        });
+
+        // Google signup
+        document.getElementById('google-signup').addEventListener('click', async () => {
+            try {
+                await signInWithPopup(auth, provider);
+                window.location.href = 'index.html';
+            } catch (error) {
+                showError('signup-error', 'Google signup failed: ' + error.message);
+            }
+        });
+
+        // Forgot password
+        document.getElementById('forgot-password').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            if (!email) {
+                showError('email-error', 'Please enter your email first');
+                return;
+            }
+            if (!validateEmail(email)) {
+                showError('email-error', 'Please enter a valid email');
+                return;
+            }
+            try {
+                await auth.sendPasswordResetEmail(email);
+                alert('Password reset email sent!');
+            } catch (error) {
+                showError('login-error', 'Failed to send reset email: ' + error.message);
+            }
+        });
+
+        // Toggle between login and signup
+        document.getElementById('signup-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('signup-section').style.display = 'block';
+        });
+
+        document.getElementById('login-link-alt').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('signup-section').style.display = 'none';
+            document.getElementById('login-section').style.display = 'block';
+        });
+
+        // Check auth state
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('login-link').textContent = 'Logout';
+                document.getElementById('login-link').href = '#';
+                document.getElementById('login-link').addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    await signOut(auth);
+                    window.location.reload();
+                });
+            } else {
+                document.getElementById('login-link').textContent = 'Login';
+                document.getElementById('login-link').href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>
